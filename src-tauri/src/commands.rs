@@ -231,6 +231,18 @@ fn process_single_project(
     }
 
     let bundle_id = chrono::Local::now().format("%Y%m%d_%H%M%S").to_string();
+
+    // 이전 ZIP 삭제 (같은 프로젝트명으로 시작하는 ZIP)
+    let prefix = format!("{}_", name);
+    if let Ok(entries) = std::fs::read_dir(&config.archive_dir) {
+        for entry in entries.flatten() {
+            let file_name = entry.file_name().to_string_lossy().to_string();
+            if file_name.starts_with(&prefix) && file_name.ends_with(".zip") {
+                let _ = std::fs::remove_file(entry.path());
+            }
+        }
+    }
+
     let created = engine::archive::create_archive(&config, &current_state, &bundle_id)?;
 
     let artifact_names: Vec<String> = created
