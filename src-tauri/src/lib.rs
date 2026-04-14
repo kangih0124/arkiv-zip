@@ -1,0 +1,25 @@
+mod engine;
+mod error;
+mod fs;
+mod model;
+mod commands;
+
+use commands::*;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .invoke_handler(tauri::generate_handler![
+            load_settings,
+            save_settings,
+            archive_all,
+            archive_all_dry_run,
+            get_project_status,
+            verify_archive,
+            restore_archive,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
